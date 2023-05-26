@@ -9,21 +9,46 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.color=false"
+  MVN_CLI_ARGS: "--batch-mode -Dmaven.test.skip -Dmaven.compiler.showCompilationChanges --no-transfer-progress -Dmaven.repo.local=local_maven_repo --fail-at-end --show-version"
+
+
 jobs:
   build:
 
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: [ '17' ]
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK ${{matrix.java}}
+      - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
-          java-version: ${{matrix.java}}
+          java-version: '17'
           distribution: 'adopt'
           cache: maven
       - name: Build with Maven Wrapper
         run: ./mvnw -B package
+
+  build-again:
+
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+          cache: maven
+      - name: Build with Maven Wrapper
+        run: ./mvnw -B package | tee maven-log.txt
+      - uses: actions/upload-artifact@v3
+        with:
+          name: maven-log.txt
+          path: maven-log.txt
+      - run: grep --fixed-strings --line-number 'Nothing to compile - all classes are up to date' maven-log.txt
+
