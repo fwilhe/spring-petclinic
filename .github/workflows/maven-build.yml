@@ -30,6 +30,13 @@ jobs:
           cache: maven
       - name: Build with Maven Wrapper
         run: ./mvnw $MVN_CLI_ARGS package
+      - name: Archive target
+        uses: actions/upload-artifact@v3
+        with:
+          name: target
+          path: |
+            **/target/
+          retention-days: 1
 
   build-again:
 
@@ -45,6 +52,10 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
           cache: maven
+      - uses: actions/download-artifact@v3
+        with:
+          name: target
+      - run: ls target
       - name: Build with Maven Wrapper
         run: ./mvnw $MVN_CLI_ARGS package | tee maven-log.txt
       - uses: actions/upload-artifact@v3
