@@ -56,7 +56,7 @@ jobs:
       - run: ls
       - run: ls -R target
       - name: Build with Maven Wrapper
-        run: ./mvnw $MVN_CLI_ARGS package | tee maven-log.txt
+        run: ./mvnw --debug $MVN_CLI_ARGS package | tee maven-log.txt
       - uses: actions/upload-artifact@v3
         with:
           name: maven-log.txt
