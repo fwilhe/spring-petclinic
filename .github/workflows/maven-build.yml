@@ -4,36 +4,33 @@
 name: Java CI with Maven
 
 on:
-  workflow_dispatch:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
 
-env:
-  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.color=false"
-  MVN_CLI_ARGS: "--batch-mode -Dmaven.test.skip -Dmaven.compiler.showCompilationChanges --no-transfer-progress --show-version"
-
-
 jobs:
   build:
 
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ '17', '18' ]
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK 17
+      - name: Set up JDK ${{matrix.java}}
         uses: actions/setup-java@v2
         with:
-          java-version: '17'
+          java-version: ${{matrix.java}}
           distribution: 'adopt'
           cache: maven
       - name: Build with Maven Wrapper
-        run: ./mvnw $MVN_CLI_ARGS package
+        run: ./mvnw -B package
       - name: Archive target
         uses: actions/upload-artifact@v3
         with:
-          name: target
+          name: target-jdk-${{matrix.java}}
           path: |
             **/target/
           retention-days: 1
@@ -54,7 +51,8 @@ jobs:
           cache: maven
       - uses: actions/download-artifact@v3
         with:
-          name: target
+          name: target-jdk-17
+          path: target
       - run: ls target
       - name: Build with Maven Wrapper
         run: ./mvnw $MVN_CLI_ARGS package | tee maven-log.txt
