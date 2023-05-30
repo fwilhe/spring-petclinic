@@ -52,8 +52,8 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: target-jdk-17
-          path: target
-      - run: ls target
+      - run: mv target-jdk-17 target
+      - run: ls -R target
       - name: Build with Maven Wrapper
         run: ./mvnw $MVN_CLI_ARGS package | tee maven-log.txt
       - uses: actions/upload-artifact@v3
