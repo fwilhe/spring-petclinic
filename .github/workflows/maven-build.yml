@@ -49,10 +49,11 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
           cache: maven
+      - run: ls
       - uses: actions/download-artifact@v3
         with:
           name: target-jdk-17
-      - run: mv target-jdk-17 target
+      - run: ls
       - run: ls -R target
       - name: Build with Maven Wrapper
         run: ./mvnw $MVN_CLI_ARGS package | tee maven-log.txt
